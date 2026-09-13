@@ -10,10 +10,14 @@ st.write("Posez vos questions par texte ou à la voix !")
 # Clé API Groq dans la barre latérale
 api_key = st.sidebar.text_input("Clé API Groq", type="password", value="", help="Entrez votre clé gsk_...")
 
-# Choix du modèle dans la barre latérale pour éviter les erreurs 404
+# Sélection dynamique avec les modèles recommandés par Groq
 model_choice = st.sidebar.selectbox(
     "Modèle IA",
-    ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"],
+    [
+        "openai/gpt-oss-20b",
+        "openai/gpt-oss-120b",
+        "qwen/qwen3.6-27b"
+    ],
     index=0
 )
 
@@ -33,7 +37,7 @@ else:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    # Option 1 : Entrée vocale (Micro)
+    # Entrée vocale (Micro)
     st.write("🎤 **Parler à l'assistant :**")
     text_from_voice = speech_to_text(
         language='fr',
@@ -42,10 +46,9 @@ else:
         key='voice_input'
     )
 
-    # Option 2 : Entrée texte classique
+    # Entrée texte
     text_from_chat = st.chat_input("Ou tapez votre question ici...")
 
-    # Déterminer si l'utilisateur a écrit ou parlé
     prompt = text_from_voice if text_from_voice else text_from_chat
 
     if prompt:
