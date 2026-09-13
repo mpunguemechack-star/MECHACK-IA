@@ -1,12 +1,13 @@
 import streamlit as st
 from groq import Groq
+from streamlit_mic_recorder import speech_to_text
 
 st.set_page_config(page_title="Assistant IA Universel", page_icon="🤖", layout="centered")
 
 st.title("🤖 Assistant IA Universel — Mechack IA")
-st.write("Posez toutes vos questions, l'IA vous répond instantanément !")
+st.write("Posez vos questions par texte ou à la voix !")
 
-# Saisie de la clé API
+# Clé API Groq dans la barre latérale
 api_key = st.sidebar.text_input("Clé API Groq", type="password", value="", help="Entrez votre clé gsk_...")
 
 if not api_key:
@@ -19,12 +20,28 @@ else:
             {"role": "system", "content": "Tu es un assistant IA polyvalent, intelligent et très précis."}
         ]
 
+    # Historique de conversation
     for message in st.session_state.messages:
         if message["role"] != "system":
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
-    if prompt := st.chat_input("Posez votre question ici..."):
+    # Option 1 : Entrée vocale (Micro)
+    st.write("🎤 **Parler à l'assistant :**")
+    text_from_voice = speech_to_text(
+        language='fr',
+        start_prompt="🔴 Appuyez pour parler",
+        stop_prompt="⏹️ Arrêter l'enregistrement",
+        key='voice_input'
+    )
+
+    # Option 2 : Entrée texte classique
+    text_from_chat = st.chat_input("Ou tapez votre question ici...")
+
+    # Déterminer si l'utilisateur a écrit ou parlé
+    prompt = text_from_voice if text_from_voice else text_from_chat
+
+    if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
@@ -32,7 +49,7 @@ else:
         with st.chat_message("assistant"):
             try:
                 stream = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model="llama-3.1-8b-instant",
                     messages=st.session_state.messages,
                     stream=False,
                 )
