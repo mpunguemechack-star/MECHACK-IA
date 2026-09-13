@@ -32,7 +32,7 @@ else:
         with st.chat_message("assistant"):
             try:
                 stream = client.chat.completions.create(
-                    model="llama3-8b-8192",
+                    model="llama-3.3-70b-versatile",
                     messages=st.session_state.messages,
                     stream=False,
                 )
