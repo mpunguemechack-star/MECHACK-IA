@@ -10,6 +10,13 @@ st.write("Posez vos questions par texte ou à la voix !")
 # Clé API Groq dans la barre latérale
 api_key = st.sidebar.text_input("Clé API Groq", type="password", value="", help="Entrez votre clé gsk_...")
 
+# Choix du modèle dans la barre latérale pour éviter les erreurs 404
+model_choice = st.sidebar.selectbox(
+    "Modèle IA",
+    ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"],
+    index=0
+)
+
 if not api_key:
     st.info("💡 Veuillez entrer votre clé API Groq (MECHACK_IA) dans le panneau de gauche pour commencer.", icon="🔑")
 else:
@@ -48,12 +55,11 @@ else:
 
         with st.chat_message("assistant"):
             try:
-                stream = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
+                chat_completion = client.chat.completions.create(
                     messages=st.session_state.messages,
-                    stream=False,
+                    model=model_choice,
                 )
-                response = stream.choices[0].message.content
+                response = chat_completion.choices[0].message.content
                 st.markdown(response)
                 st.session_state.messages.append({"role": "assistant", "content": response})
             except Exception as e:
